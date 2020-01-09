@@ -15,10 +15,6 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
             filter_departure_route_code = filter_dataframe["ticket_departure_route_code"] == row["route_cappelli_route_code"]
             #FINE
             #CALCOLO MQ OCCUPATI E CREAZIONE NUOVA RIGA
-            message = ""
-            for labels in filter_dataframe.columns:
-                message += "Nome Colonna -->" + labels + "\n"
-            writeLog(levelLog.INFO, "CaricoManager", message)
             row = filter_dataframe[filter_departure_data & filter_ship_code & filter_departure_route_code].groupby(
                 ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name", "arrival_port_name",
                  "metri_garage_navi_spazio_totale"])["tot_mq_occupati"].sum().reset_index(name='tot_mq_occupati')
