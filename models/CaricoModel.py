@@ -10,7 +10,7 @@ def getMaxCaricoNave():
 
 def get_dati_prenotazioni():
     sql = "SELECT `booking_ticket_departure_timestamp`,`ship_code`,`ship_id`, `tab_port_departure`.`port_name` AS `departure_port_name`, `tab_port_arrival`.`port_name` AS `arrival_port_name`, " \
-      "tab_boardingcard_category.boardingcard_category_id,tab_boardingcard_category.boardingcard_category_name,tab_ticket.ticket_trip_code,tab_ticket.ticket_departure_route_code,tab_ticket.ticket_arrival_route_code " \
+      "tab_boardingcard_category.boardingcard_category_code,tab_boardingcard_category.boardingcard_category_name,tab_ticket.ticket_trip_code,tab_ticket.ticket_departure_route_code,tab_ticket.ticket_arrival_route_code " \
       "FROM `tab_booking_ticket` " \
       "LEFT JOIN `tab_ship` ON `tab_ship`.`ship_code` = `tab_booking_ticket`.`booking_ticket_ship_code`" \
       "LEFT JOIN `tab_itinerary` ON `tab_itinerary`.`itinerary_code` = `tab_booking_ticket`.`booking_ticket_itinerary_code`" \
@@ -74,7 +74,7 @@ def get_distinct_first_trip():
     sql = "SELECT route_cappelli_trip_code,route_cappelli_departure_timestamp,route_cappelli_route_code,route_cappelli_next_route_code," \
           "route_cappelli_departure_port_code,route_cappelli_arrival_port_code,route_cappelli_ship_code " \
           "FROM tab_route_cappelli " \
-          "WHERE route_cappelli_progressive = 1 "
+          "WHERE route_cappelli_progressive = 1  "
     df = SQLManager.get_istance().execute_query(string_sql=sql)
     return df
 
@@ -87,7 +87,7 @@ def get_trip_from_route_code(route_code):
     return df.iloc[0]
 
 def get_all_bording_category_mq_occupati():
-    sql = "SELECT boardingcard_category_id,(boardingcard_category_lunghezza * boardingcard_category_larghezza + boardingcard_category_delta_larghezza) AS mq_occupati,boardingcard_category_s18 " \
+    sql = "SELECT boardingcard_category_code,(boardingcard_category_lunghezza * boardingcard_category_larghezza + boardingcard_category_delta_larghezza) AS mq_occupati,boardingcard_category_s18 " \
       "FROM tab_boardingcard_category"
     df = SQLManager.get_istance().execute_query(string_sql=sql)
     return df

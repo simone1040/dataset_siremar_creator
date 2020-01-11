@@ -7,6 +7,8 @@ import pandas as pd
 
 def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_dataframe):
     final_dataframe = get_dataframe_data_to_show()
+    count = 1
+    total_element = dataframe_route_cappelli.shape[0]
     for index, row in dataframe_route_cappelli.iterrows():
         if len(row["route_cappelli_next_route_code"].replace(" ", "")) == 0: #Caso in cui il viaggio non prevedere ulteriore hop
             #INIZIO FILTRI DA APPLICARE PER CALCOLARE I MQ OCCUPATI
@@ -28,7 +30,6 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
             complete_trip = from_first_trip_get_all_lines(row)
             writeLog(levelLog.INFO, "CaricoManager", "\n\n\n\nViaggio Completo -->" + complete_trip.to_string())
             #FINE
-
             for index,trip in complete_trip.iterrows():
                 #Porto di partenza nome
                 departure_port_name = from_port_code_get_name(trip["route_cappelli_departure_port_code"])
@@ -97,6 +98,8 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                     mq_occupati_scesi = row_scesi["tot_mq_occupati"].sum(axis=0)
                     writeLog(levelLog.INFO, "CaricoManager", "Carico sceso -->" + str(mq_occupati_scesi))
                 mq_occupati_precedenti_tratte = row["tot_mq_occupati"] - mq_occupati_scesi
+        print("Elaborazione dell'elemento --> ",count ," su -->", total_element)
+        count= count + 1
     return final_dataframe
 
 #Metodo che prende dalla route cappelli l'intero viaggio partendo dal primo
@@ -141,8 +144,8 @@ def create_dataframe():
             #Faccio il join con il database cosi da avere uniche informazioni
             dataframe = pd.merge(dataframe,
                                  category_mq_occupati, how="inner",
-                                 left_on="boardingcard_category_id",
-                                 right_on="boardingcard_category_id")
+                                 left_on="boardingcard_category_code",
+                                 right_on="boardingcard_category_code")
             #ora devo raggruppare per viaggio e calcolare i mq occupati, quindi la somma
             dataframe = dataframe.groupby(["booking_ticket_departure_timestamp", "ticket_trip_code", "ticket_departure_route_code", "ticket_arrival_route_code",
                                                     "ship_code", "departure_port_name", "arrival_port_name",
@@ -151,7 +154,7 @@ def create_dataframe():
             dataframe = compute_dataframe_from_route_cappelli(dataframe_route_cappelli, dataframe)
             if not dataframe.empty:
                 dataframe_to_write = dataframe
-    return dataframe_to_write
+            return dataframe_to_write
 
 
 
