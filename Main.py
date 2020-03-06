@@ -4,7 +4,6 @@ from models.CaricoModel import getMaxCaricoNave
 from utils.MyLogger import *
 import argparse
 import pandas as pd
-from pyspark.shell import spark
 from pyspark.sql import SQLContext, SparkSession
 from utils.Costants import *
 
@@ -20,13 +19,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.pre:
-        prenotazioni_csv = pd.read_csv("./prenotazioni.csv")
-        if not prenotazioni_csv.empty:
+        try:
+            prenotazioni_csv = pd.read_csv("./prenotazioni.csv")
             prenotazioni_csv = prenotazioni_csv.loc[:, ~prenotazioni_csv.columns.str.contains('^Unnamed')]
             df_to_write = sqlContext.createDataFrame(prenotazioni_csv)
             df_to_write.write.parquet(PARQUET_FILE_PRENOTATION)
             writeLog(levelLog.INFO, "main", "Dataset creato correttamente")
-        else:
+        except:
             database_max_mq = getMaxCaricoNave()
             if not database_max_mq.empty:
                 DATAFRAME_APPLICATION["dataframe_max_mq_occupati"] = database_max_mq
@@ -47,6 +46,7 @@ if __name__ == "__main__":
                 dataframe = create_dataframe()
                 if not dataframe.empty:
                     dataframe.to_csv("./prenotazioni.csv")
+                    dataframe = dataframe.tz_localize('CET', ambiguous='infer')
                     df_to_write = sqlContext.createDataFrame(dataframe)
                     df_to_write.write.parquet(PARQUET_FILE_PRENOTATION)
                     writeLog(levelLog.INFO, "main", "Dataset creato correttamente")

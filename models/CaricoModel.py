@@ -20,21 +20,9 @@ def get_dati_prenotazioni():
       "LEFT JOIN `tab_booking_accessory` ON `tab_booking_accessory`.`booking_accessory_booking_boardingcard_id` = `tab_booking_ticket`.`booking_ticket_id`" \
       "INNER JOIN `tab_boardingcard_category` ON `tab_boardingcard_category`.`boardingcard_category_code` = `tab_booking_vehicle`.`booking_vehicle_category_code` OR `tab_boardingcard_category`.`boardingcard_category_code` = `tab_booking_accessory`.`booking_accessory_category_code`" \
       "INNER JOIN `tab_ticket` ON `tab_ticket`.`ticket_number` = `tab_booking_ticket`.`booking_ticket_number` " \
-      "WHERE booking_ticket_status = 'F'  AND DATE(booking_ticket_departure_timestamp)<= '2019-10-01' "
+      "WHERE booking_ticket_status = 'F'  AND DATE(booking_ticket_departure_timestamp)<= '2019-12-01' ORDER BY booking_ticket_departure_timestamp"
     df = SQLManager.get_istance().execute_query(string_sql=sql)
     return df
-
-def getMaxCaricoForShip(ship_code):
-    sql = "SELECT metri_garage_navi_spazio_totale " \
-          "FROM tab_metri_garage_navi " \
-          "INNER JOIN tab_ship on tab_metri_garage_navi.ship_id = tab_ship.ship_id " \
-          "WHERE ship_code = '{}' ".format(ship_code)
-    df = SQLManager.get_istance().execute_query(string_sql=sql)
-    if not df.empty:
-        return df["metri_garage_navi_spazio_totale"].iloc[0]
-    else:
-        return 0
-
 
 def get_distinct_tratte():
     sql = "SELECT booking_ticket_departure_port_code,booking_ticket_arrival_port_code " \
@@ -74,7 +62,7 @@ def get_distinct_first_trip():
     sql = "SELECT route_cappelli_trip_code,route_cappelli_departure_timestamp,route_cappelli_route_code,route_cappelli_next_route_code," \
           "route_cappelli_departure_port_code,route_cappelli_arrival_port_code,route_cappelli_ship_code " \
           "FROM tab_route_cappelli " \
-          "WHERE route_cappelli_progressive = 1  "
+          "WHERE route_cappelli_progressive = 1 ORDER BY route_cappelli_departure_timestamp"
     df = SQLManager.get_istance().execute_query(string_sql=sql)
     return df
 

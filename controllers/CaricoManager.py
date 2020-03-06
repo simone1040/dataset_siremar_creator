@@ -18,8 +18,7 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
             #FINE
             #CALCOLO MQ OCCUPATI E CREAZIONE NUOVA RIGA
             row = filter_dataframe[filter_departure_data & filter_ship_code & filter_departure_route_code].groupby(
-                ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name", "arrival_port_name",
-                 "metri_garage_navi_spazio_totale"])["tot_mq_occupati"].sum().reset_index(name='tot_mq_occupati')
+                ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name", "arrival_port_name"])["tot_mq_occupati"].sum().reset_index(name='tot_mq_occupati')
             #FINE
             if not row.empty:
                 final_dataframe = final_dataframe.append(row, ignore_index=True)
@@ -35,8 +34,6 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                 departure_port_name = from_port_code_get_name(trip["route_cappelli_departure_port_code"])
                 #Porto di arrivo nome
                 arrival_port_name = from_port_code_get_name(trip["route_cappelli_arrival_port_code"])
-                #Mq totali della nave
-                mq_carico_nave = getMaxCaricoForShip(trip["route_cappelli_ship_code"])
 
                 writeLog(levelLog.INFO, "CaricoManager", "Viaggio preso in esame-->" + trip.to_string())
                 writeLog(levelLog.INFO, "CaricoManager", "Porto di arrivo--> " + arrival_port_name)
@@ -49,8 +46,7 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                 #FINE
                 #INIZIO CALCOLO LA RIGA E CALCOLO I MQ OCCUPATI
                 row = filter_dataframe[filter_departure_data & filter_porto_partenza & filter_ship_code & filter_departure_route_code].groupby(
-                        ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name", "arrival_port_name",
-                        "metri_garage_navi_spazio_totale"])["tot_mq_occupati"].sum().reset_index(name='tot_mq_occupati')
+                        ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name", "arrival_port_name"])["tot_mq_occupati"].sum().reset_index(name='tot_mq_occupati')
 
                 #FINE
                 #INIZIO CONTROLLO CHE PER IL VIAGGIO CI SIANO MEZZI CHE SI SONO IMBARCATI, IN CASO CONTRARIO CONSIDERIAMO
@@ -61,7 +57,7 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                     row = get_dataframe_data_to_show()
                     row = row.append({'booking_ticket_departure_timestamp': trip["route_cappelli_departure_timestamp"],
                                       'ship_code': trip["route_cappelli_ship_code"], 'departure_port_name': departure_port_name,
-                                      'arrival_port_name': arrival_port_name, "metri_garage_navi_spazio_totale": mq_carico_nave, "tot_mq_occupati": 0}, ignore_index=True)
+                                      'arrival_port_name': arrival_port_name,"tot_mq_occupati": 0}, ignore_index=True)
                     writeLog(levelLog.INFO, "CaricoManager", "Viaggio da me creato -->" + row.to_string())
                 else:
                     if(len(row) > 1): #Piu biglietti prenotati per diversi porti di arrivo dallo stesso porto di partenza
@@ -71,8 +67,7 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                         row = row.append(
                             {'booking_ticket_departure_timestamp': trip["route_cappelli_departure_timestamp"],
                              'ship_code': trip["route_cappelli_ship_code"], 'departure_port_name': departure_port_name,
-                             'arrival_port_name': arrival_port_name, "metri_garage_navi_spazio_totale": mq_carico_nave,
-                             "tot_mq_occupati": 0}, ignore_index=True)
+                             'arrival_port_name': arrival_port_name, "tot_mq_occupati": 0}, ignore_index=True)
                         row["tot_mq_occupati"] = tot_mq_occupati
                     writeLog(levelLog.INFO, "CaricoManager", "Viaggio di partenza -->" + row.to_string())
                 row["tot_mq_occupati"] = row["tot_mq_occupati"] + mq_occupati_precedenti_tratte
@@ -88,9 +83,9 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                 ship_code = trip["route_cappelli_ship_code"] == filter_dataframe["ship_code"]
                 filter_arrival_route_code = filter_dataframe["ticket_arrival_route_code"] == trip["route_cappelli_route_code"]
                 row_scesi = filter_dataframe[porto_arrivo & ship_code & filter_arrival_route_code].groupby(
-                        ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name","arrival_port_name",
-                         "metri_garage_navi_spazio_totale"])["tot_mq_occupati"].sum().reset_index(
-                        name='tot_mq_occupati')
+                    ["booking_ticket_departure_timestamp", "ship_code", "departure_port_name", "arrival_port_name"])[
+                    "tot_mq_occupati"].sum().reset_index(
+                    name='tot_mq_occupati')
                 if row_scesi.empty:
                     mq_occupati_scesi = 0
                     writeLog(levelLog.INFO, "CaricoManager", "Nessun mezzo è sceso.")
@@ -98,7 +93,7 @@ def compute_dataframe_from_route_cappelli(dataframe_route_cappelli,filter_datafr
                     mq_occupati_scesi = row_scesi["tot_mq_occupati"].sum(axis=0)
                     writeLog(levelLog.INFO, "CaricoManager", "Carico sceso -->" + str(mq_occupati_scesi))
                 mq_occupati_precedenti_tratte = row["tot_mq_occupati"] - mq_occupati_scesi
-        print("Elaborazione dell'elemento --> ",count ," su -->", total_element)
+        print("Elaborazione dell'elemento --> ", count," su -->", total_element)
         count= count + 1
     return final_dataframe
 
