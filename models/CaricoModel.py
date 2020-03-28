@@ -20,7 +20,7 @@ def get_dati_prenotazioni():
       "LEFT JOIN `tab_booking_accessory` ON `tab_booking_accessory`.`booking_accessory_booking_boardingcard_id` = `tab_booking_ticket`.`booking_ticket_id`" \
       "INNER JOIN `tab_boardingcard_category` ON `tab_boardingcard_category`.`boardingcard_category_code` = `tab_booking_vehicle`.`booking_vehicle_category_code` OR `tab_boardingcard_category`.`boardingcard_category_code` = `tab_booking_accessory`.`booking_accessory_category_code`" \
       "INNER JOIN `tab_ticket` ON `tab_ticket`.`ticket_number` = `tab_booking_ticket`.`booking_ticket_number` " \
-      "WHERE booking_ticket_status = 'F'  AND DATE(booking_ticket_departure_timestamp)<= '2019-12-01' ORDER BY booking_ticket_departure_timestamp"
+      "WHERE booking_ticket_status = 'F' AND DATE(booking_ticket_departure_timestamp)<= '2019-12-01' ORDER BY booking_ticket_departure_timestamp"
     df = SQLManager.get_istance().execute_query(string_sql=sql)
     return df
 

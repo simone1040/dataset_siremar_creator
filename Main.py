@@ -36,8 +36,8 @@ if __name__ == "__main__":
             try:
                 dataframe_prenotazioni = sqlContext.read.parquet(PARQUET_FILE_PRENOTATION).toPandas()
             except:
-                dataframe_prenotazioni = None
-            if not dataframe_prenotazioni == None:
+                dataframe_prenotazioni = pd.DataFrame()
+            if not dataframe_prenotazioni.empty:
                 DATAFRAME_APPLICATION["dataframe_prenotazioni"] = dataframe_prenotazioni
                 writeLog(levelLog.INFO, "main", "dataframe prenotazioni caricato correttamente. Non devo crearlo")
                 sys.exit(1)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 dataframe = create_dataframe()
                 if not dataframe.empty:
                     dataframe.to_csv("./prenotazioni.csv")
-                    dataframe = dataframe.tz_localize('CET', ambiguous='infer')
+                    pd.to_datetime(dataframe.booking_ticket_departure_timestamp, unit='ms').dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
                     df_to_write = sqlContext.createDataFrame(dataframe)
                     df_to_write.write.parquet(PARQUET_FILE_PRENOTATION)
                     writeLog(levelLog.INFO, "main", "Dataset creato correttamente")
